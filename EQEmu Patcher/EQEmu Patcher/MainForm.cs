@@ -22,8 +22,8 @@ namespace EQEmu_Patcher
          *  EDIT THESE VARIABLES FOR EACH SERVER
          * 
          ****/
-        public static string serverName = "Rebuild EQ";
-        public static string filelistUrl = "https://patch.clumsysworld.com/";
+        public static string serverName = "The Firiona Vie Project";
+        public static string filelistUrl = "https://www.fvproject.com/";
         public static bool defaultAutoPlay = false; //When a user runs this first time, what should Autoplay be set to?
         public static bool defaultAutoPatch = false; //When a user runs this first time, what should Autopatch be set to?
 
@@ -31,9 +31,9 @@ namespace EQEmu_Patcher
         public static List<VersionTypes> supportedClients = new List<VersionTypes> { //Supported clients for patcher
             //VersionTypes.Unknown, //unk
             //VersionTypes.Titanium, //tit
-            //VersionTypes.Underfoot, //und
+            VersionTypes.Underfoot, //und
             //VersionTypes.Secrets_Of_Feydwer, //sof
-            //VersionTypes.Seeds_Of_Destruction, //sod
+            VersionTypes.Seeds_Of_Destruction, //sod
             VersionTypes.Rain_Of_Fear, //rof
             VersionTypes.Rain_Of_Fear_2 //rof
             //VersionTypes.Broken_Mirror, //bro
@@ -234,31 +234,31 @@ namespace EQEmu_Patcher
                 {
                     case "85218FC053D8B367F2B704BAC5E30ACC":
                         currentVersion = VersionTypes.Secrets_Of_Feydwer;
-                        splashLogo.Image = Properties.Resources.sof;
+                        splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "859E89987AA636D36B1007F11C2CD6E0":
                     case "EF07EE6649C9A2BA2EFFC3F346388E1E78B44B48": //one of the torrented uf clients, used by B&R too
                         currentVersion = VersionTypes.Underfoot;
-                        splashLogo.Image = Properties.Resources.underfoot;
+                        splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "A9DE1B8CC5C451B32084656FCACF1103": //p99 client
                     case "BB42BC3870F59B6424A56FED3289C6D4": //vanilla titanium
                         currentVersion = VersionTypes.Titanium;
-                        splashLogo.Image = Properties.Resources.titanium;
+                        splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "368BB9F425C8A55030A63E606D184445":
                         currentVersion = VersionTypes.Rain_Of_Fear;
-                        splashLogo.Image = Properties.Resources.rof;
+                        splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "240C80800112ADA825C146D7349CE85B":
                     case "A057A23F030BAA1C4910323B131407105ACAD14D": //This is a custom ROF2 from a torrent download
                         currentVersion = VersionTypes.Rain_Of_Fear_2;
-                        splashLogo.Image = Properties.Resources.rof;
+                        splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "6BFAE252C1A64FE8A3E176CAEE7AAE60": //This is one of the live EQ binaries.
                     case "AD970AD6DB97E5BB21141C205CAD6E68": //2016/08/27
                         currentVersion = VersionTypes.Broken_Mirror;
-                        splashLogo.Image = Properties.Resources.brokenmirror;
+                        splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     default:
                         currentVersion = VersionTypes.Unknown;
