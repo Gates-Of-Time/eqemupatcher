@@ -33,9 +33,10 @@
             this.txtList = new System.Windows.Forms.TextBox();
             this.btnStart = new System.Windows.Forms.Button();
             this.splashLogo = new System.Windows.Forms.PictureBox();
-            this.btnCheck = new System.Windows.Forms.Button();
+            this.btnPatch = new System.Windows.Forms.Button();
             this.chkAutoPlay = new System.Windows.Forms.CheckBox();
             this.chkAutoPatch = new System.Windows.Forms.CheckBox();
+            this.comboBoxServerSelect = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.splashLogo)).BeginInit();
             this.SuspendLayout();
             // 
@@ -45,7 +46,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar.Location = new System.Drawing.Point(10, 521);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(400, 39);
+            this.progressBar.Size = new System.Drawing.Size(449, 39);
             this.progressBar.TabIndex = 0;
             // 
             // txtList
@@ -59,13 +60,13 @@
             this.txtList.Name = "txtList";
             this.txtList.ReadOnly = true;
             this.txtList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtList.Size = new System.Drawing.Size(400, 450);
+            this.txtList.Size = new System.Drawing.Size(449, 450);
             this.txtList.TabIndex = 1;
             // 
             // btnStart
             // 
             this.btnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStart.Location = new System.Drawing.Point(315, 463);
+            this.btnStart.Location = new System.Drawing.Point(364, 463);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(95, 52);
             this.btnStart.TabIndex = 3;
@@ -82,21 +83,21 @@
             this.splashLogo.Margin = new System.Windows.Forms.Padding(0);
             this.splashLogo.MinimumSize = new System.Drawing.Size(400, 450);
             this.splashLogo.Name = "splashLogo";
-            this.splashLogo.Size = new System.Drawing.Size(400, 450);
+            this.splashLogo.Size = new System.Drawing.Size(449, 450);
             this.splashLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.splashLogo.TabIndex = 4;
             this.splashLogo.TabStop = false;
             // 
-            // btnCheck
+            // btnPatch
             // 
-            this.btnCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnCheck.Location = new System.Drawing.Point(12, 463);
-            this.btnCheck.Name = "btnCheck";
-            this.btnCheck.Size = new System.Drawing.Size(95, 52);
-            this.btnCheck.TabIndex = 6;
-            this.btnCheck.Text = "Patch";
-            this.btnCheck.UseVisualStyleBackColor = true;
-            this.btnCheck.Click += new System.EventHandler(this.btnCheck_Click);
+            this.btnPatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnPatch.Location = new System.Drawing.Point(12, 463);
+            this.btnPatch.Name = "btnPatch";
+            this.btnPatch.Size = new System.Drawing.Size(95, 52);
+            this.btnPatch.TabIndex = 6;
+            this.btnPatch.Text = "Patch";
+            this.btnPatch.UseVisualStyleBackColor = true;
+            this.btnPatch.Click += new System.EventHandler(this.btnCheck_Click);
             // 
             // chkAutoPlay
             // 
@@ -120,16 +121,30 @@
             this.chkAutoPatch.UseVisualStyleBackColor = true;
             this.chkAutoPatch.CheckedChanged += new System.EventHandler(this.chkAutoPatch_CheckedChanged);
             // 
+            // comboBoxServerSelect
+            // 
+            this.comboBoxServerSelect.DisplayMember = "Select a Server";
+            this.comboBoxServerSelect.FormattingEnabled = true;
+            this.comboBoxServerSelect.Items.AddRange(new object[] {
+            "The Firiona Vie Project (Original)",
+            "FVP - The Firiona Vie Project (Kunark)"});
+            this.comboBoxServerSelect.Location = new System.Drawing.Point(127, 486);
+            this.comboBoxServerSelect.Name = "comboBoxServerSelect";
+            this.comboBoxServerSelect.Size = new System.Drawing.Size(210, 21);
+            this.comboBoxServerSelect.TabIndex = 9;
+            this.comboBoxServerSelect.SelectedIndexChanged += new System.EventHandler(this.comboBoxServerSelect_SelectedIndexChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(416, 572);
+            this.ClientSize = new System.Drawing.Size(465, 572);
+            this.Controls.Add(this.comboBoxServerSelect);
             this.Controls.Add(this.chkAutoPatch);
             this.Controls.Add(this.chkAutoPlay);
             this.Controls.Add(this.txtList);
             this.Controls.Add(this.btnStart);
-            this.Controls.Add(this.btnCheck);
+            this.Controls.Add(this.btnPatch);
             this.Controls.Add(this.splashLogo);
             this.Controls.Add(this.progressBar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -152,9 +167,10 @@
         private System.Windows.Forms.TextBox txtList;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.PictureBox splashLogo;
-        private System.Windows.Forms.Button btnCheck;
+        private System.Windows.Forms.Button btnPatch;
         private System.Windows.Forms.CheckBox chkAutoPlay;
         private System.Windows.Forms.CheckBox chkAutoPatch;
+        private System.Windows.Forms.ComboBox comboBoxServerSelect;
     }
 }
 

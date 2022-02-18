@@ -26,28 +26,38 @@ namespace EQEmu_Patcher
         public static string filelistUrl = "https://www.fvproject.com/";
         public static bool defaultAutoPlay = false; //When a user runs this first time, what should Autoplay be set to?
         public static bool defaultAutoPatch = false; //When a user runs this first time, what should Autopatch be set to?
+        // Nazwadi: expansion gets set by drop-down
+        public static string defaultServer = "The Firiona Vie Project (Original)";//When a user runs this first time, what should the Server be set to?
+        public static string expansion = "classic/";
 
         //Note that for supported versions, the 3 letter suffix is needed on the filelist_###.yml file.
-        public static List<VersionTypes> supportedClients = new List<VersionTypes> { //Supported clients for patcher
-            //VersionTypes.Unknown, //unk
-            //VersionTypes.Titanium, //tit
-            VersionTypes.Underfoot, //und
-            //VersionTypes.Secrets_Of_Feydwer, //sof
-            VersionTypes.Seeds_Of_Destruction, //sod
-            VersionTypes.Rain_Of_Fear, //rof
-            VersionTypes.Rain_Of_Fear_2 //rof
-            //VersionTypes.Broken_Mirror, //bro
-        }; 
+        public static List<ClientVersionTypes> supportedClients = new List<ClientVersionTypes> { //Supported clients for patcher
+            //ClientVersionTypes.Unknown, //unk
+            //ClientVersionTypes.Titanium, //tit
+            //ClientVersionTypes.Underfoot, //und
+            //ClientVersionTypes.Secrets_Of_Feydwer, //sof
+            //ClientVersionTypes.Seeds_Of_Destruction, //sod
+            ClientVersionTypes.Rain_Of_Fear, //rof
+            ClientVersionTypes.Rain_Of_Fear_2 //rof
+            //ClientVersionTypes.Broken_Mirror, //bro
+        };
+
+        public static List<Expansions> supportedExpansions = new List<Expansions>
+        { // Supported expansion servers; add more expansions to list if you support them (see Expansions.cs)
+            Expansions.Classic,
+            Expansions.The_Ruins_of_Kunark
+        };
         //*** END OF EDIT ***
 
 
         bool isLoading;
         bool isNeedingPatch;
-        private Dictionary<VersionTypes, ClientVersion> clientVersions = new Dictionary<VersionTypes, ClientVersion>();
+        private static string suffix = "unk";
+        private Dictionary<ClientVersionTypes, ClientVersion> clientVersions = new Dictionary<ClientVersionTypes, ClientVersion>();
 
-        VersionTypes currentVersion;
+        ClientVersionTypes currentVersion;
 
-       // TaskbarItemInfo tii = new TaskbarItemInfo();
+        //TaskbarItemInfo tii = new TaskbarItemInfo();
         public MainForm()
         {
             InitializeComponent();
@@ -74,23 +84,23 @@ namespace EQEmu_Patcher
             IniLibrary.Load();
             detectClientVersion();
             
-            if (IniLibrary.instance.ClientVersion == VersionTypes.Unknown)
+            if (IniLibrary.instance.ClientVersion == ClientVersionTypes.Unknown)
             {
                 detectClientVersion();
-                if (currentVersion == VersionTypes.Unknown)
+                if (currentVersion == ClientVersionTypes.Unknown)
                 {
                     this.Close();
                 }
                 IniLibrary.instance.ClientVersion = currentVersion;
                 IniLibrary.Save();
             }
-            string suffix = "unk";
-            if (currentVersion == VersionTypes.Titanium) suffix = "tit";
-            if (currentVersion == VersionTypes.Underfoot) suffix = "und";
-            if (currentVersion == VersionTypes.Seeds_Of_Destruction) suffix = "sod";
-            if (currentVersion == VersionTypes.Broken_Mirror) suffix = "bro";
-            if (currentVersion == VersionTypes.Secrets_Of_Feydwer) suffix = "sof";
-            if (currentVersion == VersionTypes.Rain_Of_Fear || currentVersion == VersionTypes.Rain_Of_Fear_2) suffix = "rof";
+
+            if (currentVersion == ClientVersionTypes.Titanium) suffix = "tit";
+            if (currentVersion == ClientVersionTypes.Underfoot) suffix = "und";
+            if (currentVersion == ClientVersionTypes.Seeds_Of_Destruction) suffix = "sod";
+            if (currentVersion == ClientVersionTypes.Broken_Mirror) suffix = "bro";
+            if (currentVersion == ClientVersionTypes.Secrets_Of_Feydwer) suffix = "sof";
+            if (currentVersion == ClientVersionTypes.Rain_Of_Fear || currentVersion == ClientVersionTypes.Rain_Of_Fear_2) suffix = "rof";
 
             bool isSupported = false;
             foreach (var ver in supportedClients)
@@ -107,32 +117,14 @@ namespace EQEmu_Patcher
 
             this.Text = serverName + " (Client: " + currentVersion.ToString().Replace("_", " ") + ")";
 
-            string webUrl = filelistUrl + suffix + "/filelist_" + suffix + ".yml";
-            string response = DownloadFile(webUrl, "filelist.yml");
-            if (response != "")
-            {
-                MessageBox.Show("Failed to fetch filelist from " + webUrl + ": " + response);
-                this.Close();
-                return;
-            }
+            FileList filelist = downloadFileManifest();
 
-            txtList.Visible = false;
             splashLogo.Visible = true;
-            FileList filelist;            
-
-            using (var input = File.OpenText("filelist.yml"))
-            {
-                var deserializerBuilder = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention());
-
-                var deserializer = deserializerBuilder.Build();
-
-                filelist = deserializer.Deserialize<FileList>(input);
-            }
             
             if (filelist.version != IniLibrary.instance.LastPatchedVersion)
             {
                 isNeedingPatch = true;
-               btnCheck.BackColor = Color.Red;
+                btnPatch.BackColor = Color.Red;
             } else
             {                
                 if ( IniLibrary.instance.AutoPlay.ToLower() == "true") PlayGame();
@@ -217,6 +209,34 @@ namespace EQEmu_Patcher
         }
         
 
+        private FileList downloadFileManifest()
+        {
+            // Nazwahdi: Refactor download so the dropdown can change it.
+            expansion = IniLibrary.instance.expansion;
+            string webUrl = filelistUrl + expansion + suffix + "/filelist_" + suffix + ".yml";
+            LogEvent("Downloading file manifest from "+webUrl);
+            string response = DownloadFile(webUrl, "filelist.yml");
+            if (response != "")
+            {
+                MessageBox.Show("Failed to fetch filelist from " + webUrl + ": " + response);
+                this.Close();
+                return null;
+            }
+
+            txtList.Visible = false;
+
+            using (var input = File.OpenText("filelist.yml"))
+            {
+                FileList filelist;
+                var deserializerBuilder = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention());
+
+                var deserializer = deserializerBuilder.Build();
+
+                filelist = deserializer.Deserialize<FileList>(input);
+                return filelist;
+            }
+        }
+
         private void detectClientVersion()
         {
 
@@ -233,38 +253,38 @@ namespace EQEmu_Patcher
                 switch (hash)
                 {
                     case "85218FC053D8B367F2B704BAC5E30ACC":
-                        currentVersion = VersionTypes.Secrets_Of_Feydwer;
+                        currentVersion = ClientVersionTypes.Secrets_Of_Feydwer;
                         splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "859E89987AA636D36B1007F11C2CD6E0":
                     case "EF07EE6649C9A2BA2EFFC3F346388E1E78B44B48": //one of the torrented uf clients, used by B&R too
-                        currentVersion = VersionTypes.Underfoot;
+                        currentVersion = ClientVersionTypes.Underfoot;
                         splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "A9DE1B8CC5C451B32084656FCACF1103": //p99 client
                     case "BB42BC3870F59B6424A56FED3289C6D4": //vanilla titanium
-                        currentVersion = VersionTypes.Titanium;
+                        currentVersion = ClientVersionTypes.Titanium;
                         splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "368BB9F425C8A55030A63E606D184445":
-                        currentVersion = VersionTypes.Rain_Of_Fear;
+                        currentVersion = ClientVersionTypes.Rain_Of_Fear;
                         splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "240C80800112ADA825C146D7349CE85B":
                     case "A057A23F030BAA1C4910323B131407105ACAD14D": //This is a custom ROF2 from a torrent download
-                        currentVersion = VersionTypes.Rain_Of_Fear_2;
+                        currentVersion = ClientVersionTypes.Rain_Of_Fear_2;
                         splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     case "6BFAE252C1A64FE8A3E176CAEE7AAE60": //This is one of the live EQ binaries.
                     case "AD970AD6DB97E5BB21141C205CAD6E68": //2016/08/27
-                        currentVersion = VersionTypes.Broken_Mirror;
+                        currentVersion = ClientVersionTypes.Broken_Mirror;
                         splashLogo.Image = Properties.Resources.eqemupatcher;
                         break;
                     default:
-                        currentVersion = VersionTypes.Unknown;
+                        currentVersion = ClientVersionTypes.Unknown;
                         break;
                 }
-                if (currentVersion == VersionTypes.Unknown)
+                if (currentVersion == ClientVersionTypes.Unknown)
                 {
                     if (MessageBox.Show("Unable to recognize the Everquest client in this directory, open a web page to report to devs?", "Visit", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
                     {
@@ -292,13 +312,13 @@ namespace EQEmu_Patcher
         private void buildClientVersions()
         {
             clientVersions.Clear();
-            clientVersions.Add(VersionTypes.Titanium, new ClientVersion("Titanium", "titanium"));
-            clientVersions.Add(VersionTypes.Secrets_Of_Feydwer, new ClientVersion("Secrets Of Feydwer", "sof"));
-            clientVersions.Add(VersionTypes.Seeds_Of_Destruction, new ClientVersion("Seeds of Destruction", "sod"));
-            clientVersions.Add(VersionTypes.Rain_Of_Fear, new ClientVersion("Rain of Fear", "rof"));
-            clientVersions.Add(VersionTypes.Rain_Of_Fear_2, new ClientVersion("Rain of Fear 2", "rof2"));
-            clientVersions.Add(VersionTypes.Underfoot, new ClientVersion("Underfoot", "underfoot"));
-            clientVersions.Add(VersionTypes.Broken_Mirror, new ClientVersion("Broken Mirror", "brokenmirror"));
+            clientVersions.Add(ClientVersionTypes.Titanium, new ClientVersion("Titanium", "titanium"));
+            clientVersions.Add(ClientVersionTypes.Secrets_Of_Feydwer, new ClientVersion("Secrets Of Feydwer", "sof"));
+            clientVersions.Add(ClientVersionTypes.Seeds_Of_Destruction, new ClientVersion("Seeds of Destruction", "sod"));
+            clientVersions.Add(ClientVersionTypes.Rain_Of_Fear, new ClientVersion("Rain of Fear", "rof"));
+            clientVersions.Add(ClientVersionTypes.Rain_Of_Fear_2, new ClientVersion("Rain of Fear 2", "rof2"));
+            clientVersions.Add(ClientVersionTypes.Underfoot, new ClientVersion("Underfoot", "underfoot"));
+            clientVersions.Add(ClientVersionTypes.Broken_Mirror, new ClientVersion("Broken Mirror", "brokenmirror"));
         }
 
         private int getFileCount(System.IO.DirectoryInfo root) {
@@ -414,13 +434,13 @@ namespace EQEmu_Patcher
         {
             if (isPatching)
             {
-                btnCheck.Text = "Patch";
+                btnPatch.Text = "Patch";
                 isPatching = false;
                 return;
             }
 
             StartPatch();
-        }        
+        }
 
         private string DownloadFile(string url, string path)
         {
@@ -456,7 +476,8 @@ namespace EQEmu_Patcher
         {
             if (isPatching) return;
             isPatching = true;
-            btnCheck.Text = "Cancel";
+            btnPatch.Text = "Cancel";
+            downloadFileManifest();
 
             txtList.Text = "Patching...";
             FileList filelist;
@@ -527,8 +548,8 @@ namespace EQEmu_Patcher
                 progressBar.Maximum = progressBar.Value = 1;
                 IniLibrary.instance.LastPatchedVersion = filelist.version;
                 IniLibrary.Save();
-                btnCheck.BackColor = SystemColors.Control;
-                btnCheck.Text = "Patch";
+                btnPatch.BackColor = SystemColors.Control;
+                btnPatch.Text = "Patch";
                 return;
             }
 
@@ -553,8 +574,8 @@ namespace EQEmu_Patcher
             LogEvent("Complete! Press Play to begin.");
             IniLibrary.instance.LastPatchedVersion = filelist.version;
             IniLibrary.Save();
-            btnCheck.BackColor = SystemColors.Control;
-            btnCheck.Text = "Patch";
+            btnPatch.BackColor = SystemColors.Control;
+            btnPatch.Text = "Patch";
         }
 
         private void LogEvent(string text)
@@ -582,12 +603,43 @@ namespace EQEmu_Patcher
             IniLibrary.instance.AutoPatch = (chkAutoPatch.Checked) ? "true" : "false";
             IniLibrary.Save();
         }
+        private void comboBoxServerSelect_SelectedIndexChanged(object sender, EventArgs e)
+        { // the expansion variable is used as part of the URL to the patch manifest and zip package
+            if (isLoading) return;
+            switch(comboBoxServerSelect.SelectedIndex)
+            {
+                case 0:
+                    expansion = "classic/";
+                break;
+                case 1:
+                    expansion = "kunark/";
+                break;
+                case 2:
+                    expansion = "velious/";
+                break;
+                case 3:
+                    expansion = "luclin/";
+                break;
+                case 4:
+                    expansion = "pop/";
+                break;
+                case 5:
+                    expansion = "loy/";
+                break;
+                default:
+                    expansion = "classic/";
+                break;
+            }
+            LogEvent(expansion);
+            IniLibrary.instance.ServerSelect = comboBoxServerSelect.Text;
+            IniLibrary.Save();
+        }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
             if (isNeedingPatch && IniLibrary.instance.AutoPatch == "true")
             {
-                btnCheck.BackColor = SystemColors.Control;
+                btnPatch.BackColor = SystemColors.Control;
                 StartPatch();
             }
         }

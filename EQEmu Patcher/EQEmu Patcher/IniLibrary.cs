@@ -14,9 +14,10 @@ namespace EQEmu_Patcher
         public static IniLibrary instance;
         public string AutoPatch { get; set; }
         public string AutoPlay { get; set; }
-        public VersionTypes ClientVersion { get; set; }
+        public string ServerSelect { get; set; }
+        public string expansion { get; set; }
+        public ClientVersionTypes ClientVersion { get; set; }
         public string LastPatchedVersion { get; set; }
-
         
         public static void Save()
         {
@@ -55,6 +56,8 @@ namespace EQEmu_Patcher
             instance = new IniLibrary();
             instance.AutoPatch = (MainForm.defaultAutoPatch) ? "true":  "false";
             instance.AutoPlay = (MainForm.defaultAutoPlay) ? "true" : "false";
+            instance.ServerSelect = MainForm.defaultServer;
+            instance.expansion = MainForm.expansion;
         }
     }
 }

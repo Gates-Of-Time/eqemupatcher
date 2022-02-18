@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EQEmu_Patcher
 {    
-    public enum VersionTypes
+    public enum ClientVersionTypes
     {
         Unknown,
         Titanium,
