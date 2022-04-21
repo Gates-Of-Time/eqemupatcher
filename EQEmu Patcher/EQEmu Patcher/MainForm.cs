@@ -23,12 +23,12 @@ namespace EQEmu_Patcher
          * 
          ****/
         public static string serverName = "The Firiona Vie Project";
-        public static string filelistUrl = "https://www.fvproject.com/";
+//        public static string filelistUrl = "https://www.fvproject.com/";
         public static bool defaultAutoPlay = false; //When a user runs this first time, what should Autoplay be set to?
         public static bool defaultAutoPatch = false; //When a user runs this first time, what should Autopatch be set to?
         // Nazwadi: expansion gets set by drop-down
-        public static string defaultServer = "The Firiona Vie Project (Original)";//When a user runs this first time, what should the Server be set to?
-        public static string expansion = "classic/";
+        public static string defaultServer = "The Firiona Vie Project (Kunark)";//When a user runs this first time, what should the Server be set to?
+        public static string expansion = "kunark.";
 
         //Note that for supported versions, the 3 letter suffix is needed on the filelist_###.yml file.
         public static List<ClientVersionTypes> supportedClients = new List<ClientVersionTypes> { //Supported clients for patcher
@@ -44,7 +44,7 @@ namespace EQEmu_Patcher
 
         public static List<Expansions> supportedExpansions = new List<Expansions>
         { // Supported expansion servers; add more expansions to list if you support them (see Expansions.cs)
-            Expansions.Classic,
+            Expansions.Original,
             Expansions.The_Ruins_of_Kunark
         };
         //*** END OF EDIT ***
@@ -116,19 +116,10 @@ namespace EQEmu_Patcher
             }
 
             this.Text = serverName + " (Client: " + currentVersion.ToString().Replace("_", " ") + ")";
+            comboBoxServerSelect.SelectedIndex = 1;
 
-            FileList filelist = downloadFileManifest();
-
+            updateFileManifest();
             splashLogo.Visible = true;
-            
-            if (filelist.version != IniLibrary.instance.LastPatchedVersion)
-            {
-                isNeedingPatch = true;
-                btnPatch.BackColor = Color.Red;
-            } else
-            {                
-                if ( IniLibrary.instance.AutoPlay.ToLower() == "true") PlayGame();
-            }
             chkAutoPlay.Checked = (IniLibrary.instance.AutoPlay == "true");
             chkAutoPatch.Checked = (IniLibrary.instance.AutoPatch == "true");
             isLoading = false;
@@ -207,13 +198,28 @@ namespace EQEmu_Patcher
             }
             return fileMap;
         }
-        
+
+        private void updateFileManifest()
+        {
+            FileList filelist = downloadFileManifest();
+
+            
+            if (filelist.version != IniLibrary.instance.LastPatchedVersion)
+            {
+                isNeedingPatch = true;
+                btnPatch.BackColor = Color.Red;
+            } else
+            {                
+                if ( IniLibrary.instance.AutoPlay.ToLower() == "true") PlayGame();
+            }
+        }
 
         private FileList downloadFileManifest()
         {
             // Nazwahdi: Refactor download so the dropdown can change it.
             expansion = IniLibrary.instance.expansion;
-            string webUrl = filelistUrl + expansion + suffix + "/filelist_" + suffix + ".yml";
+            string webUrl = "https://"+expansion+"fvproject.com/" + suffix + "/filelist_" + suffix + ".yml";
+
             LogEvent("Downloading file manifest from "+webUrl);
             string response = DownloadFile(webUrl, "filelist.yml");
             if (response != "")
@@ -223,7 +229,7 @@ namespace EQEmu_Patcher
                 return null;
             }
 
-            txtList.Visible = false;
+            txtList.Visible = true;
 
             using (var input = File.OpenText("filelist.yml"))
             {
@@ -477,7 +483,6 @@ namespace EQEmu_Patcher
             if (isPatching) return;
             isPatching = true;
             btnPatch.Text = "Cancel";
-            downloadFileManifest();
 
             txtList.Text = "Patching...";
             FileList filelist;
@@ -609,30 +614,32 @@ namespace EQEmu_Patcher
             switch(comboBoxServerSelect.SelectedIndex)
             {
                 case 0:
-                    expansion = "classic/";
+                    expansion = "original.";
                 break;
                 case 1:
-                    expansion = "kunark/";
+                    expansion = "kunark.";
                 break;
                 case 2:
-                    expansion = "velious/";
+                    expansion = "velious.";
                 break;
                 case 3:
-                    expansion = "luclin/";
+                    expansion = "luclin.";
                 break;
                 case 4:
-                    expansion = "pop/";
+                    expansion = "pop.";
                 break;
                 case 5:
-                    expansion = "loy/";
+                    expansion = "loy.";
                 break;
                 default:
-                    expansion = "classic/";
+                    expansion = "original.";
                 break;
             }
             LogEvent(expansion);
             IniLibrary.instance.ServerSelect = comboBoxServerSelect.Text;
+            IniLibrary.instance.expansion = expansion;
             IniLibrary.Save();
+            updateFileManifest();
         }
 
         private void MainForm_Shown(object sender, EventArgs e)

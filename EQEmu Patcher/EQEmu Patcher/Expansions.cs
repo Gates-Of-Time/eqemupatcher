@@ -2,7 +2,7 @@
 {
     public enum Expansions
     {
-        Classic = 0,
+        Original = 0,
         The_Ruins_of_Kunark,
         The_Scars_of_Velious,
         The_Shadows_of_Luclin,
